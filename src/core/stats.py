@@ -1,11 +1,10 @@
-import asyncio
 import json
 import os
 from collections import Counter
 from datetime import datetime, timedelta
 from pathlib import Path
-from urllib.parse import urlparse
 from statistics import mean, median
+from urllib.parse import urlparse
 
 import aiosqlite
 import matplotlib.pyplot as plt
@@ -17,8 +16,10 @@ RES.mkdir(exist_ok=True)
 INC = 5
 TXT_FILE = RES / "summary.txt"
 
+
 def _snap(dt: datetime) -> datetime:
     return dt - timedelta(seconds=dt.second % INC, microseconds=dt.microsecond)
+
 
 async def _series(sql: str):
     async with aiosqlite.connect(DB) as db:
@@ -46,6 +47,7 @@ async def _series(sql: str):
         t += timedelta(seconds=INC)
     return x, y
 
+
 async def viz_links():
     sql = """
         SELECT p.publication_date
@@ -69,8 +71,11 @@ async def viz_links():
     plt.close()
     print("Saved", out)
 
+
 async def viz_urls():
-    x, y = await _series("SELECT publication_date FROM pages WHERE publication_date <> ''")
+    x, y = await _series(
+        "SELECT publication_date FROM pages WHERE publication_date <> ''"
+    )
     if not x:
         return
     total = 0
@@ -87,18 +92,29 @@ async def viz_urls():
     plt.close()
     print("Saved", out)
 
+
 async def summary():
     async with aiosqlite.connect(DB) as db:
         db.row_factory = aiosqlite.Row
 
         total_pages = (await db.execute_fetchall("SELECT COUNT(*) FROM pages"))[0][0]
 
-        status_break = dict(await db.execute_fetchall("SELECT http_status, COUNT(*) FROM pages GROUP BY http_status"))
+        status_break = dict(
+            await db.execute_fetchall(
+                "SELECT http_status, COUNT(*) FROM pages GROUP BY http_status"
+            )
+        )
         ok_rate = status_break.get(200, 0) / total_pages if total_pages else 0
 
-        ctype_break = dict(await db.execute_fetchall("SELECT content_type, COUNT(*) FROM pages GROUP BY content_type"))
+        ctype_break = dict(
+            await db.execute_fetchall(
+                "SELECT content_type, COUNT(*) FROM pages GROUP BY content_type"
+            )
+        )
 
-        kw_strings = [r[0] for r in await db.execute_fetchall("SELECT keywords FROM pages")]
+        kw_strings = [
+            r[0] for r in await db.execute_fetchall("SELECT keywords FROM pages")
+        ]
         kw_lists = [k.split(",") if k else [] for k in kw_strings]
         flat_kws = [k for sub in kw_lists for k in sub if k]
         unique_kw = len(set(flat_kws))
@@ -107,22 +123,39 @@ async def summary():
         pages_wo_kw = total_pages - pages_w_kw
         top10 = Counter(flat_kws).most_common(10)
 
-        headings_col = [r[0] for r in await db.execute_fetchall("SELECT headings FROM pages")]
-        avg_headings = mean(len(json.loads(h)) for h in headings_col if h) if headings_col else 0
+        headings_col = [
+            r[0] for r in await db.execute_fetchall("SELECT headings FROM pages")
+        ]
+        avg_headings = (
+            mean(len(json.loads(h)) for h in headings_col if h) if headings_col else 0
+        )
 
-        links_col = [r[0] for r in await db.execute_fetchall("SELECT outbound_links FROM pages")]
+        links_col = [
+            r[0] for r in await db.execute_fetchall("SELECT outbound_links FROM pages")
+        ]
         avg_links = mean(len(json.loads(l)) for l in links_col if l) if links_col else 0
 
-        domain_counts = Counter(urlparse(u).netloc for u, in await db.execute_fetchall("SELECT url FROM pages")).most_common(5)
+        domain_counts = Counter(
+            urlparse(u).netloc
+            for (u,) in await db.execute_fetchall("SELECT url FROM pages")
+        ).most_common(5)
 
-        sizes = [os.stat(RAW_DIR / f).st_size / 1024 for f in os.listdir(RAW_DIR)] if RAW_DIR.exists() else []
+        sizes = (
+            [os.stat(RAW_DIR / f).st_size / 1024 for f in os.listdir(RAW_DIR)]
+            if RAW_DIR.exists()
+            else []
+        )
         avg_size = mean(sizes) if sizes else 0
         med_size = median(sizes) if sizes else 0
         min_size = min(sizes) if sizes else 0
         max_size = max(sizes) if sizes else 0
 
         failures = (await db.execute_fetchall("SELECT COUNT(*) FROM failures"))[0][0]
-        top_fail = dict(await db.execute_fetchall("SELECT error, COUNT(*) FROM failures GROUP BY error ORDER BY COUNT(*) DESC LIMIT 5"))
+        top_fail = dict(
+            await db.execute_fetchall(
+                "SELECT error, COUNT(*) FROM failures GROUP BY error ORDER BY COUNT(*) DESC LIMIT 5"
+            )
+        )
 
     metrics = {
         "pages_total": total_pages,
@@ -168,6 +201,7 @@ async def summary():
 
     TXT_FILE.write_text("\n".join(lines), encoding="utf-8")
     print("Report saved →", TXT_FILE)
+
 
 async def run_all():
     await summary()
