@@ -47,30 +47,3 @@ pip install black  # automatic formatting
 python main.py          # begins crawl
 ```
 
-Live output is terse; open the `results/` folder afterwards for summaries and plots.
-
-## 6 — Generate detailed reports
-
-```bash
-python scripts/report.py
-python scripts/viz_speed.py
-```
-
-The scripts export:
-
-* `summary.json` – consumable by pandas/Excel
-* `crawl_speed.png`, `links_per_5s.png`, `urls_cumulative_5s.png` – ready for slide decks
-
----
-
-### Export to Excel
-
-```python
-import pandas as pd, json
-with open("results/summary.json") as f:
-    df = pd.json_normalize(json.load(f))
-df.to_excel("results/summary.xlsx", index=False)
-```
-
-Happy crawling!
-
