@@ -26,11 +26,11 @@ This crawler was designed to:
 
 | Layer | Key Components | Responsibilities |
 |-------|----------------|------------------|
-| ** Fetch** | `Crawler.worker()` + `aiohttp.ClientSession` | Concurrent HTTP GETs, redirect handling, SSL verification. |
-| ** Parse** | `parser.parse_html()` (`BeautifulSoup`) | Extract title, meta-fields, headings, outbound links, coarse keywords. |
-| ** Persist** | `database.init_db()` + WAL-enabled SQLite | Normalise records, maintain FTS5 mirror, deduplicate raw HTML via SHA-256. |
-| ** Analyse** | `stats.summary()` / `stats.viz_*()` | Produce quantitative report and two time-series PNGs. |
-| ** Operate** | `cli` sub-commands | One-line workflow control: `crawl`, `stats`, `recent`, `viz`, `clear`. |
+| Fetch | `Crawler.worker()` + `aiohttp.ClientSession` | Concurrent HTTP GETs, redirect handling, SSL verification. |
+| Parse | `parser.parse_html()` (`BeautifulSoup`) | Extract title, meta-fields, headings, outbound links, coarse keywords. |
+| Persist | `database.init_db()` + WAL-enabled SQLite | Normalise records, maintain FTS5 mirror, deduplicate raw HTML via SHA-256. |
+| Analyse | `stats.summary()` / `stats.viz_*()` | Produce quantitative report and two time-series PNGs. |
+| Operate | `cli` sub-commands | One-line workflow control: `crawl`, `stats`, `recent`, `viz`, `clear`. |
 
 A more detailed sequence diagram and schema description live in **`docs/architecture.md`**.
 
