@@ -1,0 +1,191 @@
+<!DOCTYPE html><html>
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>GT | GT Login</title>
+
+    <link rel="stylesheet" type="text/css" href="/cas/webjars/bootstrap/5.2.0/css/bootstrap.min.css" /><!--[if gte IE 9]><!--><link rel="stylesheet" type="text/css" href="/cas/css/gatech/responsive.css"><!--<![endif]--><!--[if lt IE 9]>
+        <script src="/cas/js/html5shiv.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="/cas/css/gatech/legacy.css">
+    <![endif]--><link rel="icon" href="/cas/favicon.ico" type="image/x-icon"/><script type="text/javascript" src="/cas/webjars/jquery/3.6.1/jquery.min.js"></script>
+    <noscript>
+        <style type="text/css">
+            #cas-content {
+                display: none;
+            }
+        </style>
+    </noscript>
+
+</head>
+
+<body id="cas" class="login">
+<div id="prefooter">
+    <header>
+    <div id="identity">
+        <h1 id="gt-logo"><a title="Georgia Institute of Technology" rel="home" href="/"><img src="images/gatech/gt-logo-oneline-white.png" alt="Georgia Tech" /></a></h1>
+        <h2 id="site-title">Georgia Tech Login Service</h2>
+    </div>
+    <!-- <section id="primary-menus"> </section> --></header>
+<section id="main">
+        <div id="content" class="content">
+        <noscript>
+            <div id="noscript">
+                <h2>
+                    Click here to sign in
+                    
+                </h2>
+            </div>
+        </noscript>
+        <div id="cas-content">
+            <form method="post" id="fm1" action="login">
+    <div class="row">
+        <div class="col-md-5 col-12 gx-0 gx-md-4">
+            <div  id="login">
+                <h2>Enter your GT Account and Password</h2>
+                
+                <!--[if lte IE 7 ]>
+                                <p class="errors">
+                                    WARNING: The embedded browser of the windows application you are using is likely to display errors due to its age and incompatibilities. Please click 'Yes' on any boxes that pop up with javascript warnings.
+                                </p>
+                            <![endif]--><section>
+                    <label for="username" ><span class="accesskey">G</span>T Account:</label>
+                
+                    <div>
+                        <input class="required" id="username" size="25" tabindex="1" type="text" accesskey="u" autocomplete="off" name="username" value="" /></div>
+                </section>
+                
+                <section>
+                    <label for="password" ><span class="accesskey">P</span>assword:</label>
+                
+                    <div>
+                        <input class="required" type="password" id="password" size="25" tabindex="2"
+                            accesskey="p" autocomplete="off" name="password" value="" /><span id="capslock-on" style="display:none;">
+                            <p>
+                                <i class="fa fa-exclamation-circle"></i>
+                                <span >CAPSLOCK key is turned on!</span>
+                            </p>
+                        </span>
+                    </div>
+                </section>
+                <section class="check">
+                    </section>
+                
+                <section class="btn-row buttons">
+                    <input type="hidden" name="execution" value="6d2ebab5-d89b-467a-8e33-0184932a8b25_ZXlKaGJHY2lPaUpJVXpVeE1pSXNJblI1Y0NJNklrcFhWQ0lzSW10cFpDSTZJbVEzT0dObVptUXpMV1pqWkRRdE5EVTNOUzA1Tmpsa0xXWmpNV0k0WkdJNE1EY3dZaUo5Lkl1MzBhQ0prVmppazZNWF9hSHp5VXNnc2xrZ2tySl8wX21hbkFERkFWQ29SX1VJbmI3QUJlTjJWZW9KV3FwWnozNmE1cXhwcHVyUUNSYk8zN1pPUTBqSWRlS1dxZWxzLVZHX096OHFyTXZGcmxLWF9mLWtmUE5RanctanNIZGxkblF5eDNHRkJRY2c3R1JtOWQtUzF0QXdCMVBYUUx6RldXZ2xQaHhhSWk2TjFUbWJ5aFlldjdCQ0JEWDV4NGdZLTRSQjVpUVFqeWZBdmdCV0luVHotUVdNUXAyNDVTVHJOeDIwN2ZhQzZnTVlPRGdydUNWbmNLUDdoY1V3bUotYi1jTHBWYURMenYyNExZeXZBN2F3MUFBMUJWOE5veWlQUTI3TVN4dzdZRlp3elM0X1BTTE8tMnRqZUh6ako3bDBfN0p4VDV4SXZPQVpCUi1Fbk5NZFJPSjlwWGJYV1hNX25kT0xYQ1J0Q3c1M3FRMlpXUzVKRWRlVkJNUzdVekN4UmVxQ3JLUXpTLWNnaEVfVjJHTkE0Z0JpV0pPQ2lkNFB0RXhiLUVzN2lzSUljTGh2SVRzSGxXYXh5QkpVM3JQRHgyWFU2U3N5UWlNTlFuelg2eWl4OVdUd2JPQ21McFpGeHl0TlQwbjQ2QWRydHNNR08xX1FnY2V6dmdHQnNCcFViX01OLWtCOTR4aTc3aFBfT0t6T0ZHR2o4Qm81NEFLXzkwWTY0aEFNc08zSmxTYUN3QjZ6SDVBVjloMXFManlicDRyWUpMYTVJYi12Vm1DbEZjWG43cDVXRmZ0SnZhUzFFOTZMdGhBWUhLeFByOVFNVlF4aWtpRVpUSS1wUU1ZUWVPTU93dEIzNkdHVXg3Nms2MmNrZEZFV2FUYWNkR2dNcEUtaEh3WVZKUEhoREdXUjVzaV9paEVPSWJZTHZ0Ym5SR1MtaDBNSnBOVWdNV0ZXNUN4ZDZSdmFBcVU4OTYxdndtTW1IRUZ5U0k5OWpWNUFYTWtMS1JEODZXcFZGYVRUTHBWQVNaRV9mendteFB0cFczUVpZSTdQdUNHcWl4Wm00TVd5TDh6SVV1dFB5OVkybTlLTFhsSHdFbGw5WmFnelNhaW90TUdWcEY5c0cyMXZGRlhZZWFTWXh3VmpHSlhtWm5FbWxuRV9ydTNBNG9zeWU1Zjc5S2ZwRHhxREc0Vmo5Z3VUYWxnNFJUY3hMbTJJMV9UbkYtLVRCZlpWYWRPY3JCQTRGeFUxaWVVRkUxQWdJbk4wRGV1ek1OdHl5c0EyM2hxRk9EYjdlTWhNX0NJQzViU2gyMW5YTkNlT0NsSXFMczd1SVBvZ2JHNXJxYTlHVTBnZEJkR2lTdnJKRzFvU3JrQUdRRGtlSjdZRnVKYjZjQkFSeTNqNW9HX1lTMkdVc3F1OE9JWFNod2JrX2dLTklhV20wMzltS2I5TU1EQW9RU1V0R1ZwTlpsVk43UmlNZEd3SGNTbVNESWpOYjhSTGhicDkzNjE4cUNxUzYxTFZnQ1FOdEMxY3JPMUw4U005U29wbUdWWWlNSEVfMVYzQkQwcy14SEt5dFBUeTN1RXhIb0Y4SElxczVhQjJod1JSdFk2UVhScEtjQUdrYUpESXNBVWM3aDRmMkFOV3M0ZUh4SFhrUUpJa1dHTEZuLTRfd2htOVFReHBqUENEV1ZrdmtzT1FYbk1hRFNJYk1EQkxyQVpoM1hLR2U5elFzMXprYkJna2E5QzNGeDFYSWlzOFd4R0wydWx3b2dJUmJ5MWNBdmdwZm9yUC1ZQ2t6ZnpyWS1IMkYtSE1BaGF3emF3NTdSb1BZdnRieGJCajRpNEM5bU9lQWR3clkzeFNleGdjS3lnNW9tWjNvemtQc0Z3TG8teE5LOU9Vd2ZvbFZXOWYwMkctMW9iaW9nS1UzSDNwR2FqX3dOb1J6NFFqV2tINUM1eldwX09uaGtmeWJ2Nmhod1RRZkM2YXRKTUFYX1BQc2lKTHV3MlAyVzRFVng1QUprd2dBTDNLNlUwRm5JYXFNRkRwZ3pZYldsQ0lndHlXSHNiSFYtM2dqMU1LdmlMUFMzbklnbkhkYy1jeXJaN2FvRGVtRnVuNkd2M3FqMW82U3UyWmdpZUlTRVUyQW5NRXhwYW43QlR0WlpHWFRINVIxMmE4WGYweXV2SzJWSFQybmxReWFsaWxyS01xSFh2MnU0UENWWGVaTE45d2NBUHpibTNEZG11TzB5VWNIOUNqV29rem8zT2trZ19oaVpFSUo3aU1qZzZYSnFkNlQ5X1dmTGdUWjZYSVIwbnVxWlc3VHEzZko3ZGJIOG12cVBjcUNldjJKR0VUTldLZE9WeFNzOUVDUmFCOTdVNnlCTVdva2RHejdMTll3QzhjbXdrNFN5LUU3VUlQMUpXNUIwMjc5eTlIUkNwaUlNZ1VDT2RWenREcEdKcnhOQmZ4RGVjb3NGMFhrOXVBb0dxRFZhaVNzbUpYdmNLRjN4ekFQNTdYa0RMcUptQ3VMQXlQZ29zazZmbF9BNncxeWlkUmFCX3IyWVhwaWp6TjZKVXJpaGFDT1pmT2J6RERSVjV5WHdELU1kZ19FbmRsWGs4SzVnUGN0YjNjQmxNWlBVWm9ZMWZvN2cxSGRMb1Rzb1F0Z01zNnZvN2ozS1h3VEFSY0tweF91Z0lZUTgtV003MGZLeGpDWkl4WGpEamZWelNRWTZYVU9uR0NMbGg2U1IwUXFTU1kwMmxKbHlUdDlOZXctVTVTakJZTTZWWlh4bmgwdm8xaGlNSjJGekFOVFN6SkJmRjg0bzgwYXFYeVQtbnNtMHFvR29NOEVOMXRUQmt0bFFfcVRnc0dKVlJFbmlsZGJ2a0VkNU1NVk9ZYTlFX0VOT1NHN3NpRFp1aFlWUHVaYnEwVHVlSEZLbzJVUl91Qlk5ZWpwSzZDZHpZeFRyVXVwZGN4QVFfSW1UcHlLeHRSV1BkaTcwRXBpX3o3T1FqUWNBQnlfQlR3ZE1RUHdORldSU2J0d1Yybk1EckV6elJ5S3lSdDhRTnVUb3g0YWw0RXlqbjBiZkx6QXZzd1FPU18tX3RlNGdtcFdPak8xZnZrdVE5U1pMWFBKanNWRmRKclk2cXhtVUJvRnYybmlEZnYtRWswOFMxTmtHR0p1N1J2NG9yT2J6c3Vkc3hzajJfODI4aFItb2QxVENnWlBmeUtLOGNJZVhZa0NrU2U0N19abVg5OU5XWC1pQm9KazNlaDNPYklsUHNGcnFFWnc1MjFUc0p4ZkdHSnZZcW1UVUY1cnZhRFFsODFXU0NFejQ3NVpTZkljMzZsZldTcklpNzhrdDRqVzhTZ0NVYnVJVjFjSjlTRUZFcW9SeF96QS1TLUw2ZGpQQzNpVUpqQnFDTTFKd0h6cFJXM0ZheUtNbTNXY01uNXl0SEtiX0F4MmVaUkxjY0Yxd0pMbTh5WktUQUQwRDBLMzA3VkxVanVKZFY3UWVkRGFFcUNfYkhSU3NlSndIYlNXM084VTZ0SlZyWFA2TnJzbHR1WHMtMmpWcWEyazU4NXczekNVaXYzNDV4OXFfOGJqU2E2VWFMQ0EtUzhUci01NXpfcVlkcXpjSGNxaFVya1NqN3poYlFMeGsxa21KeF9KdTZtbVMzSHlhakQ2dFZFODB2OGxkWV94WXJWVzFnYURhNHBOcGFjTjRMSWJTUy1MX1R3NmxQRTRfaUxoaERjVURHbU9NY0t3eTI4V1dSRXpKaDNrNHp6SUtDY0NBa2JxTG5PWkRzOEMzYTFqdmtfMGpGLVE4NXM0akR4eWRjbHVsUC1WNDhsN0t6bG45RHpBX3FZb0VQdjJPc2dNMl9jaE5nOWFOb2ltOVdoSnFPNFFmMEhGa05uQnN0cW1ldVRfV1ZZd0RONndwU0l0U2h2bjFzaUxNMFFTc2pHSWd1NWY3bWJxRUNYeEFudTh0Qi1JeXlab1BielJNTmV5elZKN001bWVfTGdJR1FsZTQ4QllIR1U3czByc1l2dlVCbjY0dlp6YzNiMGFHanNqZnYzMURnWi1pbkh0cmRrNFR2RUVIUDNXdHlLOEptMkdpSmlxQktJMG1STlRUTzRLUW4zeVhVcGp2dEw0ZERGc1VhUE9JcjVXc0dXV0Zwd1dCQTBiOEVNQk0zSk9sbEgtMXY0ZHgyeTk3YklaTW5ncWZaSFR0SENMZFQ5NXZWVDNwM1VNRnpJLUxCTTVQdXVzV3E3TDRpMWpxeU5kWDNIMTg4azZqeHYzbnN0Sml2U0dHV09pQmJSbjZsc3V2VWpfVnFBVXJNWm9FdllUSGJBUGxkUW15RWZaaHItZFF6c3daRE03bkNrNDZpU0JUWWtQdmx2enAtUmM2ckJobGwxNVY2ZlhHVTVib25sN1hUcWZ1N21Ba2ZOckxMTXB3V3VfdlQzRW0xa3BiRnRRajcxc0w5Wlp3a053S2Z4NkdFYzhSa09WdDdQbHgwWklnOF9NY1hTNGMxYXdwMWdtWUlvZjNVLVdnTEM3RlNYT1lpWkFoS2xNOHNmM3RweTQtajR6Rmx6S0NJYllNajJtSm45blZKdll6cC1aRTNnT0RMZ1NaU1VHS1R2cDdWaXFjTXgyai1WV0h1RWF1YmNRWHlFSjFRTnpUNU1QVjRBNXRaeTZpblhva0UtQ2NmVU1NX1lpdWdYNVJNeERYRUd0Y2dmZlpKTkJwSUVnWkNPSndUdDBtY2lXYS05cmxzMUMwcE9TWFk3TjNZTEQxajlLOUF1NVdjWVNmbnRfeEJncDFPQ0ppQ3pOV0ZHWkI1QUFpMEZsZ1BadThmNjhxQ1pBWkNBeEZtVzZiTl95RkZZazI4UHl5WnROTkJfYVdpYlpqeHpjTUJjNUg0aV8xRVh3SnUzWk14Sm1Gb0lWcHYyTUd0UVNjb0wzb0dTakJMVjUtQUtIX0YxWmU3c3RzSld5am5iV19uNEVmTUZmYmN2Uks3UnktNXZ3eTZXQlNwaHU2T2gzNEthNTZ1STlCN2QwU1ZWazZDRzExRUtyTktuaFB2RlNJdnlTeU5fQTdVLUlPb295N2hZbDAwWGhBM1RKVUw3cm5xQWJvbWE5NDZzRGtReml1QkJIS1pZZlBQTENxX3owQUdrT205bS1XS0NCM1psTFBGa3NBNXVMZGFsUE8xUHpTMWFGY0Z6Zi1JMVM2c0lZYmRyUElZdGcwbGx6UXFPaGU2SUpSWkYyQXNqVjUxQVBfMFE0YXV6VUNWdTltb2tmaU5iX2JYSXZUb01fUFM0bmFpSmF4RHU4ZzBULTJ2Y2xLR2k1M3I2bThzdERhc0x0cGRHTnd4TDhDRnpMUjZiY3lIMC5JSDg3VWJTNnZnb2pMMWpxdHVUSllURVBkS0M0X3QtUThCWXh0ell2VXpJUWVBS1VUdlh5S2g0eGdfT0hqMjdDSXZFLTQ2ZGcxQ2lBWkRXYWhYM19zdw==" /><input type="hidden" name="_eventId" value="submit" /><input type="hidden" name="geolocation" /><input class="btn btn-submit button" name="submitbutton" accesskey="l" value="LOGIN"
+                        tabindex="6" type="submit" /></section>
+                
+                <script type="text/javascript">
+                    (function () {
+                        /*<![CDATA[*/
+                        var i = "One moment please...";
+                        var j = "LOGIN";
+                        /*]]>*/
+                        $(window).on('pageshow', function () {
+                            $(':submit').prop('disabled', false);
+                            $(':submit').prop('value', j);
+                        });
+                        $(document).ready(function () {
+                            $("#fm1").submit(function (event) {
+                                $(":submit").prop("disabled", true);
+                                $(":submit").prop("value", i);
+                                return true;
+                            });
+                        });
+                    })();
+                </script>
+            </div>
+        </div>
+
+        <div class="col-md-7 col-12 gx-0 gx-md-2">
+            <div id="loginwarn">
+    <p><b>ATTENTION</b>: When you are finished using all of your authenticated applications, please log out of this system and exit your browser to ensure you do not leave any of your applications (such as your e-mail) open to other users of this machine.</p>
+    <p><b>TERMS OF USE</b><br> This computer system is the property of the Georgia Institute of Technology. Any user of this system must comply with all Institute and Board of Regents policies, including the Acceptable Use Policy, <a href="http://b.gatech.edu/it-policies">Cyber Security Policy and Data Privacy Policy</a>. Users should have no expectation of privacy, as any and all files on this system may be intercepted, monitored, recorded, copied, inspected, and/or disclosed to authorized personnel in order to meet Institute obligations. <br><br> By using this system, I acknowledge and consent to these terms.</p>
+    <p>&nbsp;</p>
+</div>
+<div id="help">
+    <div id="dont_know">
+       <p><a href="https://passport.gatech.edu/activation/forgot-username">I don't know my GT Account</a></p>
+       <p><a href="https://passport.gatech.edu/activation/forgot-password">I don't know my password</a></p>
+       <p><a href="https://passport.gatech.edu/two-factor/help">I am unable to use Duo two-factor authentication</a></p>
+       <p><a href="https://passport.gatech.edu/?action=check-account-status">My correct username and password aren't working</a></p>
+    </div>
+    
+    <p id="support">
+        For assistance, please contact the <a href="https://asc.gatech.edu">Administrative Services Center</a> at <span class="nowrap">404-385-1111.</span>
+    </p>
+    <p id="additional_info"><a href="http://iamweb1.iam.gatech.edu/docs/Home">Additional documentation including how to integrate your application with GT Login</a></p>
+</div>
+</div>
+    </div>
+</form>
+<div id="providers" style="display:none">
+                <div>
+            <script type="text/javascript">
+                let providers = [];
+            </script>
+            <script type="text/javascript">
+                /*<![CDATA[*/
+
+                let primaryUrl = null;
+                let primaryName = null;
+
+                const redirectTo = $("button[autoRedirectType=client]").attr("id");
+                if (primaryUrl != null) {
+                    console.log(`Redirecting to primary identity provider ${primaryName} via URL ${primaryUrl}`)
+                    let form = document.getElementById(`form${primaryName}`);
+                    form.submit();
+                }
+                else if (redirectTo !== null && redirectTo !== undefined) {
+                    console.log(`Redirecting to identity provider URL ${redirectTo}`)
+                    let form = document.getElementById(`form${redirectTo}`);
+                    form.submit();
+                } else {
+                    console.log("No identity provider is configured for auto redirection.");
+                }
+                /*]]>*/
+            </script>
+        </div>
+
+    </div>
+        </div>
+    </div>
+    </section>
+    <section id="superfooter">
+    <div id="superfooter-content">&nbsp;</div>
+</section>
+
+<footer id="footer">
+    <div id="footer-content">
+    <ul>
+        <li><a href="https://www.gatech.edu/emergency/">Emergency Information</a></li>
+        <li><a href="https://www.gatech.edu/legal/">Legal &amp; Privacy Information</a></li>
+        <li><a href="https://www.gatech.edu/accessibility/">Accessibility</a></li>
+        <li><a href="https://www.gatech.edu/accountability/">Accountability</a></li>
+        <li><a href="https://www.gatech.edu/accreditation/">Accreditation</a></li>
+        <li><a href="https://www.careers.gatech.edu">Employment</a></li>
+    </ul> 
+
+    <!-- TODO: current year --><p>&copy; 2021 Georgia Institute of Technology</p>
+</div>
+</footer>
+</div>
+<div><script type="text/javascript" src="/cas/webjars/jquery/3.6.1/jquery.min.js"></script>
+<script type="text/javascript" src="/cas/webjars/datatables/1.12.1/js/jquery.dataTables.min.js"></script>
+
+<script type="text/javascript" src="/cas/webjars/es5-shim/4.5.9/es5-shim.min.js"></script>
+    <script type="text/javascript" src="/cas/webjars/css-vars-ponyfill/2.4.7/dist/css-vars-ponyfill.min.js"></script>
+    <script type="text/javascript" src="/cas/webjars/material-components-web/14.0.0/dist/material-components-web.min.js"></script>
+<script type="text/javascript" src="/cas/js/cas.js"></script>
+<script type="text/javascript" src="/cas/js/material.js"></script>
+<script>
+    if (typeof resourceLoadedSuccessfully === "function") {
+        resourceLoadedSuccessfully();
+    }
+    $(() => {
+        typeof cssVars === "function" && cssVars({onlyLegacy: true});
+    })
+    var trackGeoLocation = false;
+</script>
+
+</div>
+
+</body>
+</html>

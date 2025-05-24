@@ -1,0 +1,4 @@
+{
+    "DB_PATH": "data/crawl.db",
+    "DB_LOCATION": "data/"
+}

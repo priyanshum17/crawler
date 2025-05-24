@@ -1,0 +1,92 @@
+{
+  "pages_total": 1012,
+  "http_200_rate": 1.0,
+  "status_breakdown": {
+    "200": 1012
+  },
+  "content_type_breakdown": {
+    "application/pdf": 4,
+    "text/html": 1008
+  },
+  "keywords_unique": 584,
+  "avg_keywords_per_page": 4.98,
+  "pages_with_keywords": 1008,
+  "pages_without_keywords": 4,
+  "avg_headings_per_page": 17.33,
+  "avg_outbound_links_per_page": 145.1,
+  "top_keywords": [
+    [
+      "college",
+      788
+    ],
+    [
+      "computing",
+      716
+    ],
+    [
+      "main",
+      313
+    ],
+    [
+      "professor",
+      127
+    ],
+    [
+      "student",
+      125
+    ],
+    [
+      "faculty",
+      102
+    ],
+    [
+      "navigation",
+      92
+    ],
+    [
+      "directory",
+      77
+    ],
+    [
+      "staff",
+      73
+    ],
+    [
+      "school",
+      63
+    ]
+  ],
+  "top_domains": [
+    [
+      "www.cc.gatech.edu",
+      455
+    ],
+    [
+      "cc.gatech.edu",
+      355
+    ],
+    [
+      "prod-cc.cc.gatech.edu",
+      135
+    ],
+    [
+      "sci.cc.gatech.edu",
+      29
+    ],
+    [
+      "scp.cc.gatech.edu",
+      23
+    ]
+  ],
+  "html_size_avg_kib": 67.8,
+  "html_size_median_kib": 64.3,
+  "html_size_min_max_kib": [
+    6.6,
+    635.8
+  ],
+  "failures_total": 1,
+  "top_failures": {
+    "Cannot connect to host home.cc.gatech.edu:80 ssl:default [Connect call failed ('130.207.127.33', 80)]": 1
+  },
+  "avg_pages_per_minute": 1
+}

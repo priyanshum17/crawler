@@ -1,0 +1,33 @@
+──────── Web-Archive Summary ────────
+Pages crawled              : 1,012
+HTTP-200 success rate       : 100.0%
+Content-types               : {'application/pdf': 4, 'text/html': 1008}
+Unique keywords             : 584
+Avg keywords/page           : 4.98
+Pages w/ kw / w/o kw        : 1,008 / 4
+Avg headings/page           : 17.33
+Avg outbound links/page     : 145.10
+Avg HTML size (KiB)         : 67.8  (median 64.3)
+Min–Max HTML size (KiB)     : (6.6, 635.8)
+Failures total              : 1
+Top failures                : {"Cannot connect to host home.cc.gatech.edu:80 ssl:default [Connect call failed ('130.207.127.33', 80)]": 1}
+Average pages/min           : 1.00
+
+Top-10 keywords:
+  college           788
+  computing         716
+  main              313
+  professor         127
+  student           125
+  faculty           102
+  navigation         92
+  directory          77
+  staff              73
+  school             63
+
+Top-5 domains:
+  www.cc.gatech.edu           455
+  cc.gatech.edu               355
+  prod-cc.cc.gatech.edu       135
+  sci.cc.gatech.edu            29
+  scp.cc.gatech.edu            23
