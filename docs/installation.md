@@ -7,7 +7,7 @@
 
 ## 2 — Clone & create a virtual-env
 ```bash
-git clone https://github.com/<your-gh-handle>/crawler.git
+git clone https://github.com/priyanshum17crawler.git
 cd crawler
 python -m venv .venv
 source .venv/bin/activate
@@ -40,10 +40,3 @@ pip install black  # automatic formatting
   "DB_LOCATION": "data/"
 }
 ```
-
-## 5 — Run the crawler
-
-```bash
-python main.py          # begins crawl
-```
-
