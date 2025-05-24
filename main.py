@@ -1,5 +1,6 @@
 import asyncio
 import time
+
 from src.core.crawler import Crawler
 
 if __name__ == "__main__":

@@ -1,0 +1,593 @@
+import asyncio
+import time
+
+from src.core.crawler import Crawler
+
+if __name__ == "__main__":
+    t0 = time.perf_counter()
+    asyncio.run(Crawler().start())
+    elapsed = time.perf_counter() - t0
+    print(f"\nCrawler finished in {elapsed:.2f} s")
+import os
+import shutil
+
+import aiosqlite
+
+from src.core.settings import configuration
+
+DDL = """
+PRAGMA journal_mode=WAL;
+
+CREATE TABLE IF NOT EXISTS pages (
+  url TEXT PRIMARY KEY,
+  http_status INTEGER,
+  fetch_time TEXT,
+  content_type TEXT,
+  title TEXT,
+  meta_description TEXT,
+  meta_keywords TEXT,
+  text_content TEXT,
+  headings TEXT,
+  outbound_links TEXT,
+  media TEXT,
+  canonical_url TEXT,
+  robots_meta TEXT,
+  keywords TEXT,              
+  publication_date TEXT,
+  raw_html_path TEXT
+);
+
+CREATE VIRTUAL TABLE IF NOT EXISTS pages_fts
+USING fts5(title, text_content, meta_description, content='pages', content_rowid='rowid');
+
+CREATE TRIGGER IF NOT EXISTS pages_ai AFTER INSERT ON pages
+BEGIN
+  INSERT INTO pages_fts(rowid, title, text_content, meta_description)
+  VALUES (new.rowid, new.title, new.text_content, new.meta_description);
+END;
+
+CREATE TABLE IF NOT EXISTS failures (
+  url TEXT PRIMARY KEY,
+  error TEXT,
+  fail_time TEXT
+);
+"""
+
+
+def delete_db():
+    """Delete the existing database file if it exists."""
+    if os.path.exists(configuration.DB_PATH):
+        os.remove(configuration.DB_PATH)
+
+
+async def init_db():
+    clear_directory()
+    db = await aiosqlite.connect(configuration.DB_PATH)
+    await db.executescript(DDL)
+    await db.commit()
+    return db
+
+
+def clear_directory(dir_path="data"):
+    for filename in os.listdir(dir_path):
+        file_path = os.path.join(dir_path, filename)
+        try:
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.unlink(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+        except Exception as e:
+            print(f"Failed to delete {file_path}. Reason: {e}")
+import json
+import re
+from collections import Counter
+from datetime import datetime
+from urllib.parse import urljoin
+
+from bs4 import BeautifulSoup
+
+
+def parse_html(base_url, html_bytes):
+    soup = BeautifulSoup(html_bytes, "html.parser")
+
+    title = soup.title.string.strip() if (soup.title and soup.title.string) else ""
+
+    meta_description = ""
+    meta_keywords = ""
+    robots_meta = ""
+    publication_date = ""
+
+    for tag in soup.find_all("meta"):
+        name = tag.get("name", "").lower()
+        if name == "description":
+            meta_description = tag.get("content", "")
+        elif name == "keywords":
+            meta_keywords = tag.get("content", "")
+        elif name == "robots":
+            robots_meta = tag.get("content", "")
+        elif name == "publication_date":
+            publication_date = tag.get("content", "")
+
+    text_content = soup.get_text(separator=" ", strip=True)
+
+    headings = [
+        h.get_text(strip=True)
+        for h in soup.find_all(["h1", "h2", "h3", "h4", "h5", "h6"])
+    ]
+
+    keywords = _extract_keywords(base_url, title, meta_keywords, headings)
+
+    links = set()
+    for a in soup.find_all("a", href=True):
+        href = a["href"].strip()
+        if href.startswith("#") or href.lower().startswith("javascript:"):
+            continue
+        full_url = urljoin(base_url, href)
+        links.add(full_url)
+
+    rec = {
+        "url": base_url,
+        "http_status": 200,  # you can override later
+        "fetch_time": "",  # you can override later
+        "content_type": "text/html",  # override later
+        "title": title,
+        "meta_description": meta_description,
+        "meta_keywords": meta_keywords,
+        "text_content": text_content,
+        "headings": json.dumps(headings),
+        "outbound_links": json.dumps(list(links)),
+        "keywords": keywords,
+        "robots_meta": robots_meta,
+        "publication_date": datetime.now().isoformat(),
+    }
+    return rec
+
+
+_STOP = {
+    "the",
+    "and",
+    "for",
+    "with",
+    "that",
+    "this",
+    "from",
+    "http",
+    "https",
+    "www",
+    "com",
+    "edu",
+    "org",
+    "gatech",
+}
+
+
+def _extract_keywords(url: str, title: str, meta_kw: str, headings: list[str]) -> str:
+    """
+    Choose up to 5 keywords (comma-separated) that summarise the page.
+
+    Priority:
+      1. If <meta name="keywords"> exists, just use that.
+      2. Otherwise – take words from title + H1/H2 + URL path, strip
+         stop-words, rank by frequency, return the top 5.
+    """
+    if meta_kw:
+        kws = {k.strip().lower() for k in meta_kw.split(",") if k.strip()}
+        return ",".join(kws)
+
+    corpus = " ".join([title] + headings + url.split("/"))
+    words = re.findall(r"[a-zA-Z]{3,}", corpus.lower())
+    words = [w for w in words if w not in _STOP]
+
+    most_common = [w for w, _ in Counter(words).most_common(5)]
+    return ",".join(most_common)import asyncio
+import json
+import os
+import statistics
+from collections import Counter
+from datetime import datetime
+from pathlib import Path
+from urllib.parse import urlparse
+
+import aiosqlite
+import matplotlib.pyplot as plt
+
+DB_PATH    = "data/crawl.db"
+RAW_DIR    = Path("data/raw")
+RESULTS    = Path("results")
+RESULTS.mkdir(exist_ok=True)
+PLOT_FILE  = RESULTS / "crawl_speed.png"
+TXT_FILE   = RESULTS / "summary.txt"
+JSON_FILE  = RESULTS / "summary.json"
+
+async def column(db, sql, *params):
+    rows = await db.execute_fetchall(sql, params or ())
+    return [r[0] for r in rows]
+
+async def main():
+    async with aiosqlite.connect(DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+
+        total_pages = (await db.execute_fetchall("SELECT COUNT(*) FROM pages"))[0][0]
+
+        status_rows = await db.execute_fetchall(
+            "SELECT http_status, COUNT(*) FROM pages GROUP BY http_status"
+        )
+        status_break = {r[0]: r[1] for r in status_rows}
+        ok_rate = status_break.get(200, 0) / total_pages if total_pages else 0
+
+        ctype_rows = await db.execute_fetchall(
+            "SELECT content_type, COUNT(*) FROM pages GROUP BY content_type"
+        )
+        ctype_break = {r[0]: r[1] for r in ctype_rows}
+
+        kw_strings   = await column(db, "SELECT keywords FROM pages")
+        kw_lists     = [k.split(",") if k else [] for k in kw_strings]
+        flat_kws     = [k for lst in kw_lists for k in lst if k]
+        unique_kw    = len(set(flat_kws))
+        avg_kw_pp    = statistics.mean(len(lst) for lst in kw_lists) if kw_lists else 0
+        pages_w_kw   = sum(1 for lst in kw_lists if lst)
+        pages_wo_kw  = total_pages - pages_w_kw
+        top10        = Counter(flat_kws).most_common(10)
+
+        headings_col = await column(db, "SELECT headings FROM pages")
+        avg_headings = statistics.mean(
+            len(json.loads(h)) for h in headings_col if h
+        ) if headings_col else 0
+
+        links_col = await column(db, "SELECT outbound_links FROM pages")
+        avg_links = statistics.mean(
+            len(json.loads(l)) for l in links_col if l
+        ) if links_col else 0
+
+        domain_counts = Counter(
+            urlparse(u).netloc for u in await column(db, "SELECT url FROM pages")
+        ).most_common(5)
+
+        sizes = [os.stat(RAW_DIR / f).st_size / 1024 for f in os.listdir(RAW_DIR)] if RAW_DIR.exists() else []
+        avg_size = statistics.mean(sizes) if sizes else 0
+        med_size = statistics.median(sizes) if sizes else 0
+        min_size = min(sizes) if sizes else 0
+        max_size = max(sizes) if sizes else 0
+
+        failures = (await db.execute_fetchall("SELECT COUNT(*) FROM failures"))[0][0]
+        fail_rows = await db.execute_fetchall(
+            "SELECT error, COUNT(*) FROM failures GROUP BY error ORDER BY COUNT(*) DESC LIMIT 5"
+        )
+        top_fail = {r[0]: r[1] for r in fail_rows}
+
+        timeline = await db.execute_fetchall("""
+            SELECT
+              substr(fetch_time, 1, 19) AS ts,           -- 'YYYY-MM-DD HH:MM'
+              COUNT(*),
+              SUM(length(keywords) > 0)
+            FROM pages
+            WHERE fetch_time IS NOT NULL AND fetch_time <> ''
+            GROUP BY ts
+            ORDER BY ts
+        """)
+        timeline = [row for row in timeline if row[0] is not None]
+        ts, pages_pm, kw_pages_pm = zip(*timeline) if timeline else ([], [], [])
+        avg_pages_pm = statistics.mean(pages_pm) if pages_pm else 0
+
+    metrics = {
+        "pages_total": total_pages,
+        "http_200_rate": round(ok_rate, 4),
+        "status_breakdown": status_break,
+        "content_type_breakdown": ctype_break,
+        "keywords_unique": unique_kw,
+        "avg_keywords_per_page": round(avg_kw_pp, 2),
+        "pages_with_keywords": pages_w_kw,
+        "pages_without_keywords": pages_wo_kw,
+        "avg_headings_per_page": round(avg_headings, 2),
+        "avg_outbound_links_per_page": round(avg_links, 2),
+        "top_keywords": top10,
+        "top_domains": domain_counts,
+        "html_size_avg_kib": round(avg_size, 1),
+        "html_size_median_kib": round(med_size, 1),
+        "html_size_min_max_kib": (round(min_size, 1), round(max_size, 1)),
+        "failures_total": failures,
+        "top_failures": top_fail,
+        "avg_pages_per_minute": round(avg_pages_pm, 2),
+    }
+
+    # human-readable report
+    lines = [
+        "──────── Web-Archive Summary ────────",
+        f"Pages crawled              : {metrics['pages_total']:,}",
+        f"HTTP-200 success rate       : {metrics['http_200_rate']:.1%}",
+        f"Content-types               : {metrics['content_type_breakdown']}",
+        f"Unique keywords             : {metrics['keywords_unique']:,}",
+        f"Avg keywords/page           : {metrics['avg_keywords_per_page']:.2f}",
+        f"Pages w/ kw / w/o kw        : {metrics['pages_with_keywords']:,} / {metrics['pages_without_keywords']:,}",
+        f"Avg headings/page           : {metrics['avg_headings_per_page']:.2f}",
+        f"Avg outbound links/page     : {metrics['avg_outbound_links_per_page']:.2f}",
+        f"Avg HTML size (KiB)         : {metrics['html_size_avg_kib']:.1f}  (median {metrics['html_size_median_kib']:.1f})",
+        f"Min–Max HTML size (KiB)     : {metrics['html_size_min_max_kib']}",
+        f"Failures total              : {metrics['failures_total']:,}",
+        f"Top failures                : {metrics['top_failures']}",
+        f"Average pages/min           : {metrics['avg_pages_per_minute']:.2f}",
+        "",
+        "Top-10 keywords:",
+        *[f"  {kw:<15} {cnt:>5}" for kw, cnt in metrics["top_keywords"]],
+        "",
+        "Top-5 domains:",
+        *[f"  {dom:<25} {cnt:>5}" for dom, cnt in metrics["top_domains"]],
+    ]
+    TXT_FILE.write_text("\n".join(lines), encoding="utf-8")
+    print(f"Report saved → {TXT_FILE}")
+
+    JSON_FILE.write_text(json.dumps(metrics, indent=2), encoding="utf-8")
+    print(f"JSON saved   → {JSON_FILE}")
+
+    if ts:
+        plt.figure(figsize=(8, 4))
+        plt.plot(ts, pages_pm,     label="Pages/min")
+        plt.plot(ts, kw_pages_pm,  label="Pages w/ kw/min")
+        plt.xticks(rotation=65, ha="right")
+        plt.title("Crawl speed over time")
+        plt.xlabel("Minute")
+        plt.ylabel("Count")
+        plt.legend()
+        plt.tight_layout()
+        plt.savefig(PLOT_FILE)
+        print(f"Plot saved   → {PLOT_FILE}")
+
+if __name__ == "__main__":
+    asyncio.run(main())
+import json
+
+from pydantic import BaseModel
+
+
+class Config(BaseModel):
+    """
+    Configuration class for the application.
+    """
+
+    DB_PATH: str
+    DB_LOCATION: str
+
+
+configuration = Config(**json.load(open("config.json")))
+from typing import Any, Dict, List
+
+import aiosqlite
+
+from src.core.settings import configuration
+
+
+async def search_pages(
+    query: str,
+    top_n: int = 10,
+    db_path: str = configuration.DB_PATH,
+) -> List[Dict[str, Any]]:
+    """
+    Return up to `top_n` pages ranked by bm25() that match `query`.
+    """
+    async with aiosqlite.connect(db_path) as db:
+        db.row_factory = aiosqlite.Row
+
+        sql = """
+        WITH ranked AS (
+            SELECT
+                rowid,
+                bm25(pages_fts) AS rank
+            FROM pages_fts
+            WHERE pages_fts MATCH :query
+            ORDER BY rank
+            LIMIT :top
+        )
+        SELECT
+            p.url,
+            p.title,
+            p.meta_description,
+            snippet(pages_fts, -1, '[', ']', '…', 10) AS snippet,
+            r.rank
+        FROM ranked   AS r
+        JOIN pages_fts AS pf ON pf.rowid = r.rowid
+        JOIN pages     AS p  ON p.rowid  = r.rowid
+        ORDER BY r.rank;
+        """
+
+        rows = await db.execute_fetchall(sql, {"query": query, "top": top_n})
+        return [dict(r) for r in rows]
+import asyncio
+from datetime import datetime, timedelta
+from pathlib import Path
+
+import aiosqlite
+import matplotlib.pyplot as plt
+
+DB = "data/crawl.db"
+RES = Path("results"); RES.mkdir(exist_ok=True)
+INC = 5
+
+def _snap(dt): return dt - timedelta(seconds=dt.second % INC, microseconds=dt.microsecond)
+
+async def _series(sql):
+    async with aiosqlite.connect(DB) as db:
+        rows = await db.execute_fetchall(sql)
+    c = {}
+    for ts, in rows:
+        if not ts: continue
+        try: k = _snap(datetime.fromisoformat(ts.replace("Z", "+00:00")))
+        except ValueError: continue
+        c[k] = c.get(k, 0) + 1
+    if not c: return [], []
+    t0, t1 = min(c), max(c)
+    x, y = [], []
+    while t0 <= t1:
+        x.append(t0); y.append(c.get(t0, 0)); t0 += timedelta(seconds=INC)
+    return x, y
+
+async def viz_links_per_5s():
+    sql = """
+        SELECT p.publication_date
+        FROM pages p, json_each(p.outbound_links)
+        WHERE p.publication_date <> ''
+    """
+    x, y = await _series(sql)
+    if not x: return
+    total = 0
+    y_cum = []
+    for v in y:
+        total += v
+        y_cum.append(total)
+    plt.figure(figsize=(10,4))
+    plt.plot(x, y_cum, color="tab:orange")
+    plt.title(f"Cumulative links extracted (5-s buckets)")
+    plt.tight_layout()
+    out = RES / "links_per_5s.png"
+    plt.savefig(out)
+    plt.close()
+    print("Saved", out)
+
+
+async def viz_urls_cumulative_5s():
+    x, y = await _series(
+        "SELECT publication_date FROM pages WHERE publication_date <> ''"
+    )
+    if not x:
+        return
+    c = 0
+    ycum = []
+    for v in y:
+        c += v
+        ycum.append(c)
+    plt.figure(figsize=(10, 4))
+    plt.plot(x, ycum, color="tab:green")
+    plt.title(f"Cumulative URLs scraped (5-s buckets)")
+    plt.tight_layout()
+    out = RES / "urls_cumulative_5s.png"
+    plt.savefig(out)
+    plt.close()
+    print("Saved", out)
+
+
+if __name__ == "__main__":
+    asyncio.run(viz_links_per_5s()); asyncio.run(viz_urls_cumulative_5s())
+import asyncio
+import hashlib
+import json
+from datetime import datetime, timezone
+from pathlib import Path
+from urllib.parse import urlparse
+
+import aiohttp
+
+from src.core.database import init_db
+from src.core.parser import parse_html
+
+SEED_URL = "https://cc.gatech.edu"
+MAX_PAGES = 1_000
+USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
+
+
+class Crawler:
+    def __init__(self):
+        self.frontier = asyncio.Queue()
+        self.frontier.put_nowait(SEED_URL)
+        self.seen = set([SEED_URL])
+        self.pages_done = 0
+        self.db = None
+
+    async def start(self):
+        self.db = await init_db()
+
+        async with aiohttp.ClientSession(headers={"User-Agent": USER_AGENT}) as sess:
+            workers = [asyncio.create_task(self.worker(sess)) for _ in range(10)]
+            await self.frontier.join()
+
+            for w in workers:
+                w.cancel()
+            await asyncio.gather(*workers, return_exceptions=True)
+
+        await self.db.close()
+
+    async def worker(self, sess):
+        while True:
+            try:
+                url = await asyncio.wait_for(self.frontier.get(), timeout=5)
+            except asyncio.TimeoutError:
+                break
+
+            if self.pages_done >= MAX_PAGES:
+                self.frontier.task_done()
+                continue
+
+            try:
+                await self.handle_url(url, sess)
+            finally:
+                self.frontier.task_done()
+
+    async def handle_url(self, url, sess):
+        try:
+            async with sess.get(url, allow_redirects=True) as resp:
+                status = resp.status
+                html = await resp.read()
+                content_type = resp.headers.get("Content-Type", "")
+        except Exception as e:
+            await self.db.execute(
+                "INSERT OR IGNORE INTO failures VALUES (?,?,?)",
+                (url, str(e), datetime.now(timezone.utc).isoformat()),
+            )
+            await self.db.commit()
+            return
+
+        raw_path = save_raw(Path("data/raw/"), html)
+
+        if "text/html" not in content_type:
+            await self.db.execute(
+                "INSERT OR IGNORE INTO pages(url,http_status,fetch_time,content_type,raw_html_path)"
+                "VALUES(?,?,?,?,?)",
+                (
+                    url,
+                    status,
+                    datetime.now(timezone.utc).isoformat(),
+                    content_type,
+                    raw_path,
+                ),
+            )
+            await self.db.commit()
+            return
+
+        rec = parse_html(url, html)
+        rec["raw_html_path"] = raw_path
+
+        cols = ",".join(rec.keys())
+        placeholders = ",".join("?" * len(rec))
+        await self.db.execute(
+            f"INSERT OR IGNORE INTO pages({cols}) VALUES({placeholders})",
+            tuple(rec.values()),
+        )
+        await self.db.commit()
+
+        self.pages_done += 1
+        if self.pages_done >= MAX_PAGES:
+            return
+
+        for link in json.loads(rec.get("outbound_links", "[]")):
+            if in_scope(link) and link not in self.seen:
+                self.seen.add(link)
+                self.frontier.put_nowait(link)
+
+
+def save_raw(raw_dir: Path, html_bytes: bytes) -> str:
+    """
+    Save raw HTML bytes to a file in `raw_dir` and return the file path as string.
+
+    The filename is generated by hashing the content to avoid duplicates and illegal chars.
+    """
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    filename = hashlib.sha256(html_bytes).hexdigest() + ".html"
+    file_path = raw_dir / filename
+
+    with open(file_path, "wb") as f:
+        f.write(html_bytes)
+
+    return str(file_path)
+
+
+def in_scope(u: str) -> bool:
+    """Return True if URL is inside cc.gatech.edu (sub-domains allowed)."""
+    return urlparse(u).netloc.endswith("cc.gatech.edu")

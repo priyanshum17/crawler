@@ -1,9 +1,11 @@
-from bs4 import BeautifulSoup
 import json
-from urllib.parse import urljoin
 import re
 from collections import Counter
 from datetime import datetime
+from urllib.parse import urljoin
+
+from bs4 import BeautifulSoup
+
 
 def parse_html(base_url, html_bytes):
     soup = BeautifulSoup(html_bytes, "html.parser")

@@ -1,6 +1,9 @@
-import asyncio, aiosqlite, matplotlib.pyplot as plt
+import asyncio
 from datetime import datetime, timedelta
 from pathlib import Path
+
+import aiosqlite
+import matplotlib.pyplot as plt
 
 DB = "data/crawl.db"
 RES = Path("results"); RES.mkdir(exist_ok=True)

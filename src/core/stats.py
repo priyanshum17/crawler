@@ -1,8 +1,14 @@
-import asyncio, aiosqlite, json, os, statistics, matplotlib.pyplot as plt
+import asyncio
+import json
+import os
+import statistics
 from collections import Counter
 from datetime import datetime
 from pathlib import Path
 from urllib.parse import urlparse
+
+import aiosqlite
+import matplotlib.pyplot as plt
 
 DB_PATH    = "data/crawl.db"
 RAW_DIR    = Path("data/raw")

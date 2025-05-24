@@ -1,14 +1,14 @@
-import json
 import asyncio
-from datetime import datetime, timezone
-from pathlib import Path
-import aiohttp
 import hashlib
+import json
+from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlparse
 
-from src.core.parser import parse_html
+import aiohttp
+
 from src.core.database import init_db
+from src.core.parser import parse_html
 
 SEED_URL = "https://cc.gatech.edu"
 MAX_PAGES = 1_000
